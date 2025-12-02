@@ -142,9 +142,9 @@ class Bomb:
 
 
 class Score:
-    """""
+    """
     スコア表示のクラス
-    """""
+    """
     def __init__(self):
         self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
         self.color = (0, 0, 255)
@@ -156,6 +156,30 @@ class Score:
     def update(self, screen: pg.Surface):
         self.txt = self.fonto.render(f"スコア : {self.score}", 0, self.color)
         screen.blit(self.txt, self.rct)
+
+
+class Explosion:
+    """
+    爆発エフェクトのクラス
+    """
+    def __init__(self, center: tuple[int, int]):
+        img = pg.image.load(f"fig/explosion.gif")
+        img_flip = pg.transform.flip(img, True, True)
+        self.imgs = [img, img_flip]
+
+        self.life = 20
+        self.rct = img.get_rect()
+        self.rct.center = center
+        self.time = 0
+
+    def update(self, screen: pg.Surface):
+        if self.life <= 0:
+            return
+        self.life -= 1
+        img = self.imgs[self.time // 2 % len(self.imgs)]
+        screen.blit(img, self.rct)
+        self.time += 1
+        
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -169,6 +193,7 @@ def main():
     #     bombs.append(bomb)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     beams = []  # ゲーム初期化時にはビームは存在しない
+    explosions = []
     score = Score()
     clock = pg.time.Clock()
     tmr = 0
@@ -191,9 +216,11 @@ def main():
                 pg.display.update()
                 time.sleep(1)
                 return
+            
         for b, bomb in enumerate(bombs):
             for i, beam in enumerate(beams):
                 if beam.rct.colliderect(bomb.rct):
+                    explosions.append(Explosion(bomb.rct.center))
                     # ビームが爆弾に当たったら，爆弾とビームを消す
                     beams[i] = None
                     bombs[b] = None
@@ -205,14 +232,21 @@ def main():
                     
         
         bombs = [bomb for bomb in bombs if bomb  is not None]
+        explosions = [ex for ex in explosions if ex.life > 0]
+
         
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
+
         for beam in beams:  # ビームが存在していたら
             beam.update(screen)   
+
         for bomb in bombs:  # 爆弾が存在していたら
             bomb.update(screen)
+        
+        for ex in explosions:
+            ex.update(screen)
         score.update(screen)
         pg.display.update()
         tmr += 1
