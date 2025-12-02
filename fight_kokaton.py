@@ -230,12 +230,9 @@ def main():
                     beams = [beam for beam in beams if beam  is not None]
                     break
                     
-        
         bombs = [bomb for bomb in bombs if bomb  is not None]
         explosions = [ex for ex in explosions if ex.life > 0]
-
         
-
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
 
