@@ -201,7 +201,9 @@ def main():
                     bird.change_img(6, screen)
                     pg.display.update()
                     beams = [beam for beam in beams if beam  is not None]
-
+                    break
+                    
+        
         bombs = [bomb for bomb in bombs if bomb  is not None]
         
 
